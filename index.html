@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workspace — Serhii Marchenko</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #faf7ef;
+    --paper-deep: #f0e9d8;
+    --card: #ffffff;
+    --ink: #14231c;
+    --ink-soft: #5b6a61;
+    --ink-faint: #9aa39a;
+
+    --forest: #1f6b4a;
+    --forest-deep: #0d2e21;
+    --forest-tint: #e6f0e9;
+
+    --blue: #3a5a8c;
+    --blue-tint: #e7edf6;
+
+    --gold: #b8873f;
+    --gold-soft: #e7c98a;
+    --gold-deep: #8f6526;
+    --gold-tint: #f3e8d2;
+
+    --clay: #a35339;
+    --clay-tint: #f3e2da;
+
+    --slate: #58636c;
+    --slate-tint: #eaedef;
+
+    --line: rgba(20,35,28,0.09);
+    --line-strong: rgba(20,35,28,0.18);
+    --shadow-sm: 0 2px 10px rgba(20,35,28,0.06);
+    --shadow-md: 0 16px 36px rgba(15,25,20,0.10);
+    --shadow-lg: 0 26px 64px rgba(10,18,15,0.22);
+
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 11px;
+
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Manrope', -apple-system, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html, body{height:100%; margin:0; overflow:hidden;}
+  body{
+    background:
+      radial-gradient(900px 500px at -5% -10%, rgba(31,107,74,0.08), transparent 55%),
+      radial-gradient(700px 460px at 105% 0%, rgba(184,135,63,0.08), transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+  a{color:inherit;}
+  ::selection{background:var(--gold-tint); color:var(--forest-deep);}
+
+  /* ---------- Password gate ---------- */
+  #lockScreen{
+    position:fixed; inset:0; z-index:1000;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(1000px 560px at -8% -12%, rgba(31,107,74,0.16), transparent 55%),
+      radial-gradient(760px 500px at 108% 0%, rgba(184,135,63,0.14), transparent 55%),
+      var(--paper);
+    transition:opacity 0.4s ease, visibility 0.4s ease;
+  }
+  #lockScreen.hidden{opacity:0; visibility:hidden; pointer-events:none;}
+  .lock-card{
+    width:min(400px, 88vw);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:42px 34px 32px;
+    text-align:center;
+    box-shadow:var(--shadow-lg);
+  }
+  .lock-rings{width:52px;height:52px;margin:0 auto 20px; position:relative;}
+  .lock-rings svg{width:100%;height:100%;}
+  .lock-eyebrow{font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold-deep); font-weight:700; margin-bottom:10px;}
+  .lock-title{font-family:var(--font-display); font-size:1.55rem; font-weight:600; margin-bottom:6px; color:var(--ink);}
+  .lock-title em{font-style:italic; color:var(--forest); font-weight:500;}
+  .lock-desc{font-size:0.83rem; color:var(--ink-soft); margin-bottom:24px; line-height:1.5;}
+  .lock-input{
+    width:100%;
+    background:var(--paper);
+    border:1.5px solid var(--line-strong);
+    border-radius:var(--radius-md);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:1.05rem;
+    letter-spacing:0.35em;
+    text-align:center;
+    padding:13px;
+    outline:none;
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .lock-input:focus{border-color:var(--forest); box-shadow:0 0 0 4px rgba(31,107,74,0.12);}
+  .lock-input.shake{animation:shake 0.35s ease;}
+  @keyframes shake{
+    20%{transform:translateX(-6px);} 40%{transform:translateX(6px);}
+    60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} 100%{transform:translateX(0);}
+  }
+  .lock-btn{
+    width:100%;
+    margin-top:14px;
+    background:linear-gradient(135deg, var(--forest), var(--forest-deep));
+    color:#f6f2e8;
+    border:none;
+    padding:13px;
+    border-radius:var(--radius-md);
+    font-family:var(--font-body);
+    font-size:0.87rem;
+    font-weight:700;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow:0 8px 18px rgba(31,107,74,0.25);
+  }
+  .lock-btn:hover{transform:translateY(-1px); box-shadow:0 10px 22px rgba(31,107,74,0.32);}
+  .lock-btn:focus-visible, .clear-btn:focus-visible, .copy-btn:focus-visible, .nav-item:focus-visible, .link-row:focus-visible, .modal-close:focus-visible{
+    outline:2.5px solid var(--gold); outline-offset:2px;
+  }
+  .lock-error{
+    color:#a13d28; font-size:0.76rem; margin-top:12px; height:14px;
+    opacity:0; transition:opacity 0.15s ease; font-weight:600;
+  }
+  .lock-error.show{opacity:1;}
+
+  /* ---------- Shell layout ---------- */
+  .shell{
+    height:100vh;
+    max-width:1440px;
+    margin:0 auto;
+    padding:22px 28px;
+    display:grid;
+    grid-template-columns:1fr 258px;
+    gap:16px;
+  }
+
+  /* ---------- Main column ---------- */
+  .main{display:flex; flex-direction:column; gap:12px; min-height:0;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; flex-shrink:0;}
+  .greeting{font-family:var(--font-display); font-size:1.55rem; font-weight:500; letter-spacing:-0.01em;}
+  .greeting em{font-style:italic; color:var(--forest);}
+  .sub-line{color:var(--ink-faint); font-size:0.78rem; margin-top:2px; font-weight:600;}
+
+  .quicksearch-wrap{flex-shrink:0; position:relative; width:min(320px, 100%);}
+  .quicksearch-bar{
+    display:flex; align-items:center; gap:11px;
+    background:var(--card);
+    border:1.5px solid var(--line);
+    border-radius:100px;
+    padding:10px 16px;
+    box-shadow:var(--shadow-sm);
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .quicksearch-bar:focus-within{border-color:var(--forest); box-shadow:0 0 0 4px rgba(31,107,74,0.10);}
+  .quicksearch-bar svg{width:16px;height:16px;color:var(--ink-faint); flex-shrink:0;}
+  .quicksearch-bar input{
+    border:none; outline:none; background:transparent;
+    font-family:var(--font-body); font-size:0.87rem; color:var(--ink);
+    flex:1; font-weight:600; min-width:0;
+  }
+  .quicksearch-bar input::placeholder{color:var(--ink-faint); font-weight:600;}
+  .clear-btn{
+    background:var(--paper-deep); border:none; color:var(--ink-soft);
+    width:19px;height:19px; border-radius:50%; cursor:pointer;
+    font-size:0.68rem; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; transition:background 0.15s ease;
+  }
+  .clear-btn:hover{background:var(--line-strong);}
+
+  .search-results{
+    position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-md);
+    padding:8px;
+    max-height:min(60vh, 440px);
+    overflow-y:auto;
+    z-index:80;
+  }
+  .search-results::-webkit-scrollbar{width:5px;}
+  .search-results::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:10px;}
+  .search-empty{padding:22px 10px; text-align:center; color:var(--ink-faint); font-size:0.84rem;}
+  .result-cat{
+    font-size:0.6rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;
+    color:var(--forest); background:var(--forest-tint); padding:3px 9px; border-radius:100px;
+    flex-shrink:0;
+  }
+
+  /* ---------- Quick credentials bar ---------- */
+  .quick-creds{
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:10px 14px;
+    box-shadow:var(--shadow-sm);
+  }
+  .quick-creds-label{
+    font-size:0.62rem; text-transform:uppercase; letter-spacing:0.1em; font-weight:800;
+    color:var(--gold-deep); flex-shrink:0; padding-right:2px;
+  }
+  .cred-chip{
+    display:flex; align-items:center; gap:8px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:100px;
+    padding:6px 6px 6px 13px;
+  }
+  .cred-chip-label{font-size:0.63rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-faint); font-weight:700; flex-shrink:0;}
+  .cred-chip-value{font-size:0.82rem; color:var(--ink); font-weight:700; white-space:nowrap;}
+  .copy-btn{
+    background:transparent;
+    border:1px solid var(--line-strong);
+    color:var(--ink-soft);
+    font-family:var(--font-body);
+    font-size:0.66rem;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:100px;
+    cursor:pointer;
+    transition:all 0.15s ease;
+    flex-shrink:0;
+  }
+  .copy-btn:hover{background:var(--forest); color:#f6f2e8; border-color:var(--forest);}
+  .copy-btn.copied{background:var(--gold); color:#2a1d08; border-color:var(--gold);}
+
+  /* ---------- Dashboard grid of category panels ---------- */
+  .main-grid{
+    flex:1;
+    min-height:0;
+    display:grid;
+    grid-template-columns:1.3fr 1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:14px;
+  }
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-height:0;
+    overflow-y:auto;
+    box-shadow:var(--shadow-sm);
+  }
+  .panel::-webkit-scrollbar{width:5px;}
+  .panel::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:10px;}
+  .panel-upm{grid-column: span 2;}
+
+  .panel-title{
+    font-family:var(--font-display);
+    font-size:1.0rem;
+    font-weight:600;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:9px;
+    justify-content:space-between;
+    margin-bottom:4px;
+    flex-shrink:0;
+  }
+  .panel-title-text{display:flex; align-items:center; gap:9px;}
+  .panel-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .panel-count{
+    font-size:0.64rem;
+    font-weight:700;
+    color:var(--ink-faint);
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:2px 9px;
+    border-radius:100px;
+    flex-shrink:0;
+  }
+
+  .link-row{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:8px 6px;
+    border-radius:var(--radius-sm);
+    text-decoration:none;
+    color:inherit;
+    transition:background 0.15s ease;
+  }
+  .link-row:hover{background:var(--paper);}
+
+  .row-icon{
+    width:32px;height:32px;
+    border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .row-icon svg{width:16px;height:16px;}
+  .row-text{flex:1; min-width:0;}
+  .row-name{font-weight:700; font-size:0.85rem; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .row-desc{font-size:0.72rem; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .row-arrow{color:var(--ink-faint); flex-shrink:0; transition:all 0.15s ease;}
+  .row-arrow svg{width:12px;height:12px;}
+  .link-row:hover .row-arrow{color:var(--forest); transform:translate(2px,-2px);}
+
+  /* ---------- Right sidebar ---------- */
+  .sidebar{
+    position:relative;
+    background:linear-gradient(175deg, var(--forest-deep) 0%, #081a13 100%);
+    color:#f3efe3;
+    border-radius:var(--radius-lg);
+    padding:26px 20px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    overflow:hidden;
+    box-shadow:var(--shadow-md);
+    min-height:0;
+  }
+  .rings-deco{position:absolute; right:-70px; bottom:-70px; width:230px; height:230px; opacity:0.10; pointer-events:none;}
+  .rings-deco svg{width:100%;height:100%;}
+
+  .identity{position:relative; z-index:1; display:flex; align-items:center; gap:12px;}
+  .avatar{
+    width:42px;height:42px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(150deg, var(--gold-soft), var(--gold));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:600; font-size:1rem; color:#2a1d08;
+    box-shadow:0 6px 16px rgba(0,0,0,0.28);
+  }
+  .identity-text{min-width:0;}
+  .identity-name{font-family:var(--font-display); font-size:1.0rem; font-weight:600; letter-spacing:-0.005em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .identity-role{font-size:0.7rem; color:rgba(243,239,227,0.55); font-weight:600; margin-top:1px;}
+
+  .clock-block{position:relative; z-index:1; padding:13px 2px; border-top:1px solid rgba(243,239,227,0.12); border-bottom:1px solid rgba(243,239,227,0.12);}
+  .clock-time{font-family:var(--font-display); font-size:1.7rem; font-weight:500; font-variant-numeric:tabular-nums; letter-spacing:-0.01em;}
+  .clock-date{font-size:0.72rem; color:rgba(243,239,227,0.55); text-transform:capitalize; font-weight:600; margin-top:2px;}
+
+  .nav{position:relative; z-index:1; display:flex; flex-direction:column; gap:3px; flex:1; min-height:0;}
+  .nav-eyebrow{font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:rgba(243,239,227,0.4); font-weight:700; padding:0 8px; margin-bottom:4px;}
+  .nav-item{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 9px;
+    border-radius:var(--radius-sm);
+    color:rgba(243,239,227,0.82);
+    font-size:0.83rem; font-weight:600;
+    font-family:inherit;
+    background:none; border:none; text-align:left; width:100%;
+    transition:background 0.15s ease, color 0.15s ease;
+    cursor:pointer;
+  }
+  .nav-item svg{width:16px;height:16px; flex-shrink:0; opacity:0.85;}
+  .nav-item:hover{background:rgba(243,239,227,0.08); color:#fff;}
+  .nav-item.active{background:rgba(243,239,227,0.14); color:#fff;}
+  .nav-count{margin-left:auto; font-size:0.66rem; font-weight:700; color:rgba(243,239,227,0.45); background:rgba(0,0,0,0.18); padding:1px 8px; border-radius:100px;}
+  .nav-item.active .nav-count{color:rgba(255,255,255,0.75);}
+
+  .sidebar-foot{position:relative; z-index:1; font-size:0.66rem; color:rgba(243,239,227,0.35); font-weight:600; padding:0 8px;}
+
+  /* ---------- Quick-access modal (opened from sidebar nav) ---------- */
+  .quick-modal{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:20px;}
+  .quick-modal[hidden]{display:none;}
+  .quick-modal-backdrop{position:absolute; inset:0; background:rgba(13,25,20,0.45); backdrop-filter:blur(2px);}
+  .quick-modal-card{
+    position:relative; z-index:1;
+    width:min(460px, 100%);
+    max-height:min(72vh, 560px);
+    background:var(--card);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lg);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .quick-modal-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 18px; border-bottom:1px solid var(--line); flex-shrink:0;
+  }
+  .quick-modal-title{font-family:var(--font-display); font-size:1.05rem; font-weight:600; display:flex; align-items:center; gap:9px;}
+  .modal-close{
+    background:var(--paper); border:1px solid var(--line); color:var(--ink-soft);
+    width:26px; height:26px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:0.85rem;
+    transition:background 0.15s ease;
+  }
+  .modal-close:hover{background:var(--line-strong);}
+  .quick-modal-body{padding:8px; overflow-y:auto;}
+  .quick-modal-body .link-row{padding:10px 8px;}
+  .quick-modal-body .row-icon{width:36px; height:36px;}
+  .quick-modal-body .row-icon svg{width:18px;height:18px;}
+  .quick-modal-body .row-name{font-size:0.87rem;}
+  .quick-modal-body .row-desc{font-size:0.73rem;}
+
+  @media (max-width:1080px){
+    html, body{overflow:auto;}
+    .shell{height:auto; grid-template-columns:1fr; padding:20px 18px;}
+    .sidebar{order:-1; flex-direction:row; flex-wrap:wrap; align-items:center; padding:18px;}
+    .clock-block{border:none; padding:0 0 0 14px; border-left:1px solid rgba(243,239,227,0.14);}
+    .nav{flex-direction:row; flex-wrap:wrap; width:100%;}
+    .nav-item{width:auto;}
+    .nav-eyebrow, .sidebar-foot, .rings-deco{display:none;}
+    .main-grid{grid-template-columns:repeat(2, 1fr); grid-template-rows:auto; height:auto;}
+    .panel{max-height:340px;}
+    .panel-upm{grid-column: span 2;}
+  }
+  @media (max-width:640px){
+    .main-grid{grid-template-columns:1fr;}
+    .panel-upm{grid-column: span 1;}
+    .topbar{flex-direction:column; align-items:stretch;}
+    .quicksearch-wrap{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     BRAMKA HASŁA
+============================================================ -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-rings">
+      <svg viewBox="0 0 52 52" fill="none">
+        <circle cx="26" cy="26" r="24" stroke="#1f6b4a" stroke-width="1.4" opacity="0.35"/>
+        <circle cx="26" cy="26" r="17" stroke="#1f6b4a" stroke-width="1.4" opacity="0.55"/>
+        <circle cx="26" cy="26" r="10" stroke="#b8873f" stroke-width="1.6" opacity="0.9"/>
+        <circle cx="26" cy="26" r="3.5" fill="#1f6b4a"/>
+      </svg>
+    </div>
+    <div class="lock-eyebrow">Portal pracownika UPM</div>
+    <div class="lock-title"><em>Serhii</em> Marchenko</div>
+    <div class="lock-desc">Wprowadź kod dostępu, aby kontynuować.</div>
+    <input type="password" id="lockInput" class="lock-input" maxlength="12" inputmode="numeric" placeholder="••••">
+    <button class="lock-btn" id="lockBtn">Wejdź</button>
+    <div class="lock-error" id="lockError">Nieprawidłowy kod. Spróbuj ponownie.</div>
+  </div>
+</div>
+
+<div class="shell" id="mainWrap">
+
+  <!-- ============================================================
+       MAIN
+  ============================================================ -->
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <div class="greeting" id="greetingText">Dzień dobry, <em>Serhii</em></div>
+        <div class="sub-line" id="subLine">Nr pracownika k430067 · Serhii.1.marchenko@upm.com</div>
+      </div>
+      <div class="quicksearch-wrap">
+        <div class="quicksearch-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="quickSearch" placeholder="Szukaj aplikacji, systemu, strony…" autocomplete="off">
+          <button class="clear-btn" id="clearSearch" hidden>✕</button>
+        </div>
+        <div class="search-results" id="searchResults" hidden></div>
+      </div>
+    </div>
+
+    <div class="quick-creds">
+      <span class="quick-creds-label">Szybki dostęp</span>
+      <div class="cred-chip">
+        <span class="cred-chip-label">Email</span>
+        <span class="cred-chip-value">Serhii.1.marchenko@upm.com</span>
+        <button class="copy-btn" data-copy="Serhii.1.marchenko@upm.com">Kopiuj</button>
+      </div>
+      <div class="cred-chip">
+        <span class="cred-chip-label">Hasło</span>
+        <span class="cred-chip-value">O9o9tadim!#7QUPM</span>
+        <button class="copy-btn" data-copy="O9o9tadim!#7QUPM">Kopiuj</button>
+      </div>
+    </div>
+
+    <div class="main-grid" id="mainGrid">
+      <div class="panel panel-upm">
+        <div class="panel-title">
+          <span class="panel-title-text"><span class="panel-dot" style="background:var(--forest)"></span>Systemy UPM</span>
+          <span class="panel-count" id="countUpm"></span>
+        </div>
+        <div id="upmGrid"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">
+          <span class="panel-title-text"><span class="panel-dot" style="background:var(--blue)"></span>Microsoft 365</span>
+          <span class="panel-count" id="countMs"></span>
+        </div>
+        <div id="msGrid"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">
+          <span class="panel-title-text"><span class="panel-dot" style="background:var(--gold)"></span>Narzędzia AI</span>
+          <span class="panel-count" id="countAi"></span>
+        </div>
+        <div id="aiGrid"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">
+          <span class="panel-title-text"><span class="panel-dot" style="background:var(--clay)"></span>HR i wsparcie</span>
+          <span class="panel-count" id="countHr"></span>
+        </div>
+        <div id="hrGrid"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">
+          <span class="panel-title-text"><span class="panel-dot" style="background:var(--slate)"></span>Wyszukiwarka</span>
+          <span class="panel-count" id="countSearch"></span>
+        </div>
+        <div id="searchGrid"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       SIDEBAR (prawa kolumna)
+  ============================================================ -->
+  <aside class="sidebar">
+    <div class="rings-deco">
+      <svg viewBox="0 0 230 230" fill="none">
+        <circle cx="115" cy="115" r="108" stroke="#f3efe3" stroke-width="1"/>
+        <circle cx="115" cy="115" r="84" stroke="#f3efe3" stroke-width="1"/>
+        <circle cx="115" cy="115" r="60" stroke="#f3efe3" stroke-width="1"/>
+        <circle cx="115" cy="115" r="36" stroke="#f3efe3" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <div class="identity">
+      <div class="avatar">SM</div>
+      <div class="identity-text">
+        <div class="identity-name">Serhii Marchenko</div>
+        <div class="identity-role">Nr k430067</div>
+      </div>
+    </div>
+
+    <div class="clock-block">
+      <div class="clock-time" id="clockTime">--:--</div>
+      <div class="clock-date" id="clockDate">—</div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-eyebrow">Skróty</div>
+      <button class="nav-item active" data-cat="upm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 3 7v6c0 5 4 8.5 9 9 5-.5 9-4 9-9V7l-9-5Z"/></svg>
+        Systemy UPM <span class="nav-count" id="navCountUpm"></span>
+      </button>
+      <button class="nav-item" data-cat="ms">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+        Microsoft 365 <span class="nav-count" id="navCountMs"></span>
+      </button>
+      <button class="nav-item" data-cat="ai">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+        Narzędzia AI <span class="nav-count" id="navCountAi"></span>
+      </button>
+      <button class="nav-item" data-cat="hr">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-4.5-9.5-9C.7 8 2.3 4.5 5.7 4a4.6 4.6 0 0 1 6.3 2 4.6 4.6 0 0 1 6.3-2c3.4.5 5 4 3.2 8-2.5 4.5-9.5 9-9.5 9Z"/></svg>
+        HR i wsparcie <span class="nav-count" id="navCountHr"></span>
+      </button>
+      <button class="nav-item" data-cat="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Wyszukiwarka <span class="nav-count" id="navCountSearch"></span>
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">Workspace · szybki podgląd</div>
+  </aside>
+
+</div>
+
+<!-- ============================================================
+     POPUP: szybki podgląd kategorii (z panelu bocznego)
+============================================================ -->
+<div class="quick-modal" id="quickModal" hidden>
+  <div class="quick-modal-backdrop" id="quickModalBackdrop"></div>
+  <div class="quick-modal-card">
+    <div class="quick-modal-head">
+      <div class="quick-modal-title">
+        <span class="panel-dot" id="quickModalDot"></span>
+        <span id="quickModalTitle"></span>
+      </div>
+      <button class="modal-close" id="quickModalClose">✕</button>
+    </div>
+    <div class="quick-modal-body" id="quickModalBody"></div>
+  </div>
+</div>
+
+<script>
+  const ACCESS_CODE = "3861";
+
+  // ============================================================
+  //  IKONY — jeden mały zestaw, dobierany po kluczu "icon"
+  // ============================================================
+  const ICONS = {
+    calendar:  '<circle cx="12" cy="13" r="9"/><path d="M12 4V2M8 2v2M16 2v2M3.5 9.5h17"/>',
+    lightbulb: '<path d="M9 18h6M10 21h4M8 14a5 5 0 1 1 8 0c-.8.9-1.5 1.7-1.5 3H9.5c0-1.3-.7-2.1-1.5-3Z"/>',
+    plane:     '<path d="M3 13.5 21 6l-7.5 18-2-8-8-2.5Z"/>',
+    receipt:   '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+    chat:      '<path d="M4 5h16v11H8l-4 4V5Z"/>',
+    mail:      '<path d="M3.5 5.5h17v13h-17v-13Z"/><path d="m4 6 8 6.5L20 6"/>',
+    doc:       '<path d="M6 2.5h9L19 7v14.5H6V2.5Z"/><path d="M15 2.5V7h4"/><path d="M9 12h6M9 15.5h6"/>',
+    grid:      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
+    cloud:     '<path d="M7 18a4.5 4.5 0 0 1-.5-9 5.5 5.5 0 0 1 10.7-1.8A4 4 0 0 1 17 18H7Z"/>',
+    sparkles:  '<path d="M12 3v4M12 17v4M4 12H2M22 12h-2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/><circle cx="12" cy="12" r="3.4"/>',
+    bot:       '<rect x="5" y="9" width="14" height="10" rx="3"/><path d="M12 5v4M9 14h.01M15 14h.01"/>',
+    shield:    '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/>',
+    lifebuoy:  '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/><path d="m6.3 6.3 3 3M18 18l-3-3M18 6.3l-3 3M6.3 18l3-3"/>',
+    globe:     '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3Z"/>',
+    link:      '<path d="M9 15 15 9M10 6l1-1a4 4 0 1 1 6 6l-1 1M14 18l-1 1a4 4 0 1 1-6-6l1-1"/>'
+  };
+
+  function iconSvg(key){
+    const inner = ICONS[key] || ICONS.link;
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+  }
+
+  // ============================================================
+  //  DANE STRON — edytuj te listy, aby dodać / zmienić strony
+  // ============================================================
+
+  const upmSites = [
+    { name: "Workday", url: "https://wd103.myworkday.com/upm/d/home.htmld",
+      desc: "Dane osobowe, paski wynagrodzeń, benefity.", icon: "calendar", tint: "var(--forest-tint)", ink: "var(--forest)" },
+    { name: "BioForum", url: "https://apps.powerapps.com/play/e/default-9eab37f0-91c6-47e3-9c00-fe8544bd272e/a/375b8dbe-0291-404b-a313-cf23a8880384?tenantId=9eab37f0-91c6-47e3-9c00-fe8544bd272e&source=portal&screenColor=rgba(105,180,69,1)&skipAppMetadata=true",
+      desc: "Zgłaszanie pomysłów.", icon: "lightbulb", tint: "var(--forest-tint)", ink: "var(--forest)" },
+    { name: "Asistar", url: "https://eportal.asistar.eu/",
+      desc: "Wnioski o nieobecność.", icon: "plane", tint: "var(--forest-tint)", ink: "var(--forest)" },
+    { name: "MobileXpense", url: "https://xp1.mobilexpense.com",
+      desc: "Rozliczanie wydatków.", icon: "receipt", tint: "var(--forest-tint)", ink: "var(--forest)" }
+  ];
+
+  const msSites = [
+    { name: "Teams", url: "https://teams.microsoft.com/v2/",
+      desc: "Czat, połączenia, spotkania.", icon: "chat", tint: "var(--blue-tint)", ink: "var(--blue)" },
+    { name: "Outlook", url: "https://outlook.office.com/mail/?realm=upm.com&login_hint=serhii.1.marchenko@upm.com",
+      desc: "Poczta służbowa i kalendarz.", icon: "mail", tint: "var(--blue-tint)", ink: "var(--blue)" },
+    { name: "Word", url: "https://word.cloud.microsoft/en-us/",
+      desc: "Tworzenie i edycja dokumentów.", icon: "doc", tint: "var(--blue-tint)", ink: "var(--blue)" },
+    { name: "Excel", url: "https://excel.cloud.microsoft/en-us/?wdOrigin=POWERAPPSWEBPLAYER.SHELL",
+      desc: "Arkusze kalkulacyjne online.", icon: "grid", tint: "var(--blue-tint)", ink: "var(--blue)" },
+    { name: "OneDrive", url: "https://mysite.upm.com/?source=waffle",
+      desc: "Dysk w chmurze — pliki i dokumenty.", icon: "cloud", tint: "var(--blue-tint)", ink: "var(--blue)" }
+  ];
+
+  const aiTools = [
+    { name: "ChatGPT", url: "https://chat.openai.com/",
+      desc: "Asystent AI do pisania i researchu.", icon: "sparkles", tint: "var(--gold-tint)", ink: "var(--gold-deep)" },
+    { name: "Claude", url: "https://claude.ai/",
+      desc: "Asystent AI do pisania i researchu.", icon: "bot", tint: "var(--gold-tint)", ink: "var(--gold-deep)" }
+  ];
+
+  const hrSites = [
+    { name: "Griffin Forum", url: "https://teams.upm.com/sites/griffin-forum-employed-in-poland",
+      desc: "Intranet — benefity, formularze HR.", icon: "shield", tint: "var(--clay-tint)", ink: "var(--clay)" },
+    { name: "UPM Service Portal", url: "https://upmprod.service-now.com/myit/",
+      desc: "Zgłoszenia IT / HR.", icon: "lifebuoy", tint: "var(--clay-tint)", ink: "var(--clay)" }
+  ];
+
+  const searchSites = [
+    { name: "Google", url: "https://www.google.com",
+      desc: "Wyszukiwarka internetowa.", icon: "globe", tint: "var(--slate-tint)", ink: "var(--slate)" }
+  ];
+
+  const categories = [
+    { key: 'upm', id: 'upmGrid', countId: 'countUpm', navCountId: 'navCountUpm', label: 'Systemy UPM', color: 'var(--forest)', sites: upmSites },
+    { key: 'ms', id: 'msGrid', countId: 'countMs', navCountId: 'navCountMs', label: 'Microsoft 365', color: 'var(--blue)', sites: msSites },
+    { key: 'ai', id: 'aiGrid', countId: 'countAi', navCountId: 'navCountAi', label: 'Narzędzia AI', color: 'var(--gold)', sites: aiTools },
+    { key: 'hr', id: 'hrGrid', countId: 'countHr', navCountId: 'navCountHr', label: 'HR i wsparcie', color: 'var(--clay)', sites: hrSites },
+    { key: 'search', id: 'searchGrid', countId: 'countSearch', navCountId: 'navCountSearch', label: 'Wyszukiwarka', color: 'var(--slate)', sites: searchSites }
+  ];
+
+  // ============================================================
+  //  RENDEROWANIE — nie trzeba edytować poniżej tej linii
+  // ============================================================
+
+  function normalizeUrl(url){ return /^https?:\/\//i.test(url) ? url : 'https://' + url; }
+
+  function rowHtml(site, showCategory){
+    const catTag = showCategory ? `<span class="result-cat">${site.category}</span>` : '';
+    return `
+      <a class="link-row" href="${normalizeUrl(site.url)}" target="_blank" rel="noopener" title="${site.desc}">
+        <div class="row-icon" style="background:${site.tint}; color:${site.ink}">${iconSvg(site.icon)}</div>
+        <div class="row-text">
+          <div class="row-name">${site.name}</div>
+          <div class="row-desc">${site.desc}</div>
+        </div>
+        ${catTag}
+        <span class="row-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7v8"/></svg>
+        </span>
+      </a>
+    `;
+  }
+
+  categories.forEach(cat => {
+    document.getElementById(cat.id).innerHTML = cat.sites.map(s => rowHtml(s, false)).join('');
+    document.getElementById(cat.countId).textContent = cat.sites.length;
+    document.getElementById(cat.navCountId).textContent = cat.sites.length;
+  });
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const text = btn.dataset.copy;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.classList.add('copied');
+        btn.textContent = 'Skopiowano';
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = original; }, 1400);
+      });
+    });
+  });
+
+  // ---- Live clock + time-based greeting ----
+  function updateClock(){
+    const now = new Date();
+    const h = now.getHours();
+    let greetWord = "Dobry wieczór";
+    if(h < 12) greetWord = "Dzień dobry";
+    else if(h < 18) greetWord = "Miłego dnia";
+
+    document.getElementById('greetingText').innerHTML = `${greetWord}, <em>Serhii</em>`;
+    document.getElementById('clockTime').textContent =
+      now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('clockDate').textContent =
+      now.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  // ============================================================
+  //  POPUP SZYBKIEGO PODGLĄDU (panel boczny)
+  // ============================================================
+  const quickModal = document.getElementById('quickModal');
+  const quickModalTitle = document.getElementById('quickModalTitle');
+  const quickModalDot = document.getElementById('quickModalDot');
+  const quickModalBody = document.getElementById('quickModalBody');
+  const navItems = Array.from(document.querySelectorAll('.nav-item'));
+
+  function openQuickModal(catKey){
+    const cat = categories.find(c => c.key === catKey);
+    if(!cat) return;
+    navItems.forEach(n => n.classList.toggle('active', n.dataset.cat === catKey));
+    quickModalTitle.textContent = cat.label;
+    quickModalDot.style.background = cat.color;
+    quickModalBody.innerHTML = cat.sites.map(s => rowHtml(s, false)).join('');
+    quickModal.hidden = false;
+  }
+  function closeQuickModal(){
+    quickModal.hidden = true;
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => openQuickModal(item.dataset.cat));
+  });
+  document.getElementById('quickModalClose').addEventListener('click', closeQuickModal);
+  document.getElementById('quickModalBackdrop').addEventListener('click', closeQuickModal);
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeQuickModal(); });
+
+  // ============================================================
+  //  SZYBKIE WYSZUKIWANIE (command search)
+  // ============================================================
+  const allSites = [];
+  categories.forEach(cat => cat.sites.forEach(s => allSites.push({ ...s, category: cat.label })));
+
+  const quickSearch = document.getElementById('quickSearch');
+  const clearSearch = document.getElementById('clearSearch');
+  const searchResults = document.getElementById('searchResults');
+  const mainGrid = document.getElementById('mainGrid');
+
+  function runSearch(){
+    const q = quickSearch.value.trim().toLowerCase();
+    clearSearch.hidden = q.length === 0;
+
+    if(q.length === 0){
+      searchResults.hidden = true;
+      mainGrid.style.display = '';
+      return;
+    }
+
+    const matches = allSites.filter(s =>
+      s.name.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q) || s.category.toLowerCase().includes(q)
+    );
+
+    searchResults.innerHTML = matches.length
+      ? matches.map(s => rowHtml(s, true)).join('')
+      : `<div class="search-empty">Brak wyników dla „${quickSearch.value}”.</div>`;
+
+    searchResults.hidden = false;
+    mainGrid.style.display = 'none';
+  }
+
+  quickSearch.addEventListener('input', runSearch);
+  clearSearch.addEventListener('click', () => {
+    quickSearch.value = '';
+    runSearch();
+    quickSearch.focus();
+  });
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('.quicksearch-wrap')){
+      if(quickSearch.value.trim().length === 0){ searchResults.hidden = true; }
+    }
+  });
+
+  // ============================================================
+  //  BRAMKA HASŁA
+  // ============================================================
+  const lockScreen = document.getElementById('lockScreen');
+  const lockInput = document.getElementById('lockInput');
+  const lockBtn = document.getElementById('lockBtn');
+  const lockError = document.getElementById('lockError');
+
+  function tryUnlock(){
+    if(lockInput.value.trim() === ACCESS_CODE){
+      sessionStorage.setItem("upmUnlocked", "1");
+      lockScreen.classList.add('hidden');
+      document.body.style.overflow = '';
+    } else {
+      lockError.classList.add('show');
+      lockInput.classList.add('shake');
+      lockInput.value = '';
+      setTimeout(() => lockInput.classList.remove('shake'), 350);
+    }
+  }
+  lockBtn.addEventListener('click', tryUnlock);
+  lockInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') tryUnlock(); });
+  lockInput.addEventListener('input', () => lockError.classList.remove('show'));
+
+  if(sessionStorage.getItem("upmUnlocked") === "1"){
+    lockScreen.classList.add('hidden');
+  } else {
+    setTimeout(() => lockInput.focus(), 350);
+  }
+</script>
+
+</body>
+</html>
