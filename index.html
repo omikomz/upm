@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workspace — Serhii Marchenko</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #f6f2e8;
+    --paper-deep: #ece4d2;
+    --card: #ffffff;
+    --ink: #1c2620;
+    --ink-soft: #5c655d;
+    --ink-faint: #98a096;
+    --forest: #1f6b4a;
+    --forest-deep: #12392a;
+    --forest-tint: #e7f0e9;
+    --gold: #b9822f;
+    --gold-soft: #e7c98a;
+    --line: rgba(28,38,32,0.10);
+    --line-strong: rgba(28,38,32,0.20);
+    --shadow-sm: 0 2px 10px rgba(28,38,32,0.06);
+    --shadow-md: 0 16px 36px rgba(20,30,24,0.10);
+    --shadow-lg: 0 24px 60px rgba(18,28,22,0.18);
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Manrope', -apple-system, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html, body{height:100%; margin:0; overflow:hidden;}
+  body{
+    background:
+      radial-gradient(900px 500px at -5% -10%, rgba(31,107,74,0.10), transparent 55%),
+      radial-gradient(700px 460px at 105% 0%, rgba(185,130,47,0.10), transparent 55%),
+      var(--paper);
+    background-image:
+      radial-gradient(900px 500px at -5% -10%, rgba(31,107,74,0.10), transparent 55%),
+      radial-gradient(700px 460px at 105% 0%, rgba(185,130,47,0.10), transparent 55%),
+      repeating-linear-gradient(115deg, rgba(28,38,32,0.014) 0px, rgba(28,38,32,0.014) 1px, transparent 1px, transparent 3px),
+      var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+  }
+
+  /* ---------- Password gate ---------- */
+  #lockScreen{
+    position:fixed; inset:0; z-index:1000;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(900px 500px at -5% -10%, rgba(31,107,74,0.12), transparent 55%),
+      radial-gradient(700px 460px at 105% 0%, rgba(185,130,47,0.12), transparent 55%),
+      var(--paper);
+    transition:opacity 0.4s ease, visibility 0.4s ease;
+  }
+  #lockScreen.hidden{opacity:0; visibility:hidden; pointer-events:none;}
+  .lock-card{
+    width:min(380px, 88vw);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:38px 32px 30px;
+    text-align:center;
+    box-shadow:var(--shadow-lg);
+  }
+  .lock-icon{
+    width:50px;height:50px;border-radius:50%;
+    background:linear-gradient(155deg, var(--forest), var(--forest-deep));
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;
+    box-shadow:0 8px 20px rgba(31,107,74,0.35);
+  }
+  .lock-icon svg{width:21px;height:21px;color:#f6f2e8;}
+  .lock-title{font-family:var(--font-display); font-size:1.35rem; font-weight:500; margin-bottom:6px; color:var(--ink);}
+  .lock-desc{font-size:0.83rem; color:var(--ink-soft); margin-bottom:22px; line-height:1.5;}
+  .lock-input{
+    width:100%;
+    background:var(--paper);
+    border:1.5px solid var(--line-strong);
+    border-radius:var(--radius-md);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:1.05rem;
+    letter-spacing:0.35em;
+    text-align:center;
+    padding:13px;
+    outline:none;
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .lock-input:focus{border-color:var(--forest); box-shadow:0 0 0 4px rgba(31,107,74,0.12);}
+  .lock-input.shake{animation:shake 0.35s ease;}
+  @keyframes shake{
+    20%{transform:translateX(-6px);} 40%{transform:translateX(6px);}
+    60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} 100%{transform:translateX(0);}
+  }
+  .lock-btn{
+    width:100%;
+    margin-top:14px;
+    background:linear-gradient(135deg, var(--forest), var(--forest-deep));
+    color:#f6f2e8;
+    border:none;
+    padding:12px;
+    border-radius:var(--radius-md);
+    font-family:var(--font-body);
+    font-size:0.87rem;
+    font-weight:700;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow:0 8px 18px rgba(31,107,74,0.25);
+  }
+  .lock-btn:hover{transform:translateY(-1px); box-shadow:0 10px 22px rgba(31,107,74,0.32);}
+  .lock-error{
+    color:#b4472f; font-size:0.76rem; margin-top:12px; height:14px;
+    opacity:0; transition:opacity 0.15s ease; font-weight:600;
+  }
+  .lock-error.show{opacity:1;}
+
+  .wrap{
+    height:100vh;
+    max-width:1300px;
+    margin:0 auto;
+    padding:26px 32px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:14px;
+    flex-shrink:0;
+  }
+  .greeting{
+    font-family:var(--font-display);
+    font-size:1.85rem;
+    font-weight:500;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .greeting em{font-style:italic; color:var(--forest);}
+  .sub-line{color:var(--ink-faint); font-size:0.8rem; margin-top:4px; font-weight:500;}
+
+  .clock-time{
+    font-family:var(--font-display);
+    font-size:1.5rem;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+    text-align:right;
+  }
+  .clock-date{font-size:0.76rem; color:var(--ink-faint); text-transform:capitalize; text-align:right; font-weight:500;}
+
+  /* ---------- Quick search (signature element) ---------- */
+  .quicksearch-wrap{flex-shrink:0; position:relative;}
+  .quicksearch-bar{
+    display:flex; align-items:center; gap:12px;
+    background:var(--card);
+    border:1.5px solid var(--line);
+    border-radius:100px;
+    padding:13px 20px;
+    box-shadow:var(--shadow-sm);
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .quicksearch-bar:focus-within{border-color:var(--forest); box-shadow:0 0 0 4px rgba(31,107,74,0.10);}
+  .quicksearch-bar svg{width:17px;height:17px;color:var(--ink-faint); flex-shrink:0;}
+  .quicksearch-bar input{
+    border:none; outline:none; background:transparent;
+    font-family:var(--font-body); font-size:0.92rem; color:var(--ink);
+    flex:1; font-weight:500;
+  }
+  .quicksearch-bar input::placeholder{color:var(--ink-faint); font-weight:500;}
+  .clear-btn{
+    background:var(--paper-deep); border:none; color:var(--ink-soft);
+    width:20px;height:20px; border-radius:50%; cursor:pointer;
+    font-size:0.7rem; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; transition:background 0.15s ease;
+  }
+  .clear-btn:hover{background:var(--line-strong);}
+
+  .search-results{
+    position:absolute; top:calc(100% + 8px); left:0; right:0;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-md);
+    padding:8px;
+    max-height:min(50vh, 420px);
+    overflow-y:auto;
+    z-index:50;
+  }
+  .search-results::-webkit-scrollbar{width:5px;}
+  .search-results::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:10px;}
+  .search-empty{padding:22px 10px; text-align:center; color:var(--ink-faint); font-size:0.84rem;}
+  .result-cat{
+    font-size:0.62rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;
+    color:var(--forest); background:var(--forest-tint); padding:2px 8px; border-radius:100px;
+    flex-shrink:0;
+  }
+
+  /* ---------- Main grid of category panels ---------- */
+  .main-grid{
+    flex:1;
+    min-height:0;
+    display:grid;
+    grid-template-columns:1.35fr 1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:16px;
+  }
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-height:0;
+    overflow-y:auto;
+    box-shadow:var(--shadow-sm);
+  }
+  .panel::-webkit-scrollbar{width:5px;}
+  .panel::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:10px;}
+
+  .panel-upm{
+    grid-column: span 2;
+    background:linear-gradient(160deg, var(--forest) 0%, var(--forest-deep) 100%);
+    border:none;
+    color:#f6f2e8;
+    box-shadow:0 18px 40px rgba(18,57,42,0.28);
+  }
+  .panel-upm::-webkit-scrollbar-thumb{background:rgba(246,242,232,0.3);}
+
+  .panel-title{
+    font-family:var(--font-display);
+    font-size:1.02rem;
+    font-weight:500;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:4px;
+    flex-shrink:0;
+  }
+  .panel-upm .panel-title{color:#f6f2e8;}
+  .panel-count{
+    font-size:0.66rem;
+    font-weight:700;
+    color:var(--ink-faint);
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:2px 9px;
+    border-radius:100px;
+  }
+  .panel-upm .panel-count{
+    color:#eaf3ec; background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.18);
+  }
+
+  .link-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:9px 9px;
+    border-radius:var(--radius-sm);
+    text-decoration:none;
+    color:inherit;
+    transition:background 0.15s ease;
+  }
+  .link-row:hover{background:var(--paper);}
+  .panel-upm .link-row:hover{background:rgba(255,255,255,0.10);}
+  .link-row:hover .row-arrow{color:var(--forest); transform:translate(2px,-2px);}
+  .panel-upm .link-row:hover .row-arrow{color:#f6f2e8;}
+
+  .row-badge{
+    width:30px;height:30px;
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:0.72rem;
+    color:#1c2620;
+    flex-shrink:0;
+  }
+  .row-text{flex:1; min-width:0;}
+  .row-name{font-weight:700; font-size:0.87rem; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .panel-upm .row-name{color:#f6f2e8;}
+  .row-desc{font-size:0.73rem; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .panel-upm .row-desc{color:rgba(246,242,232,0.72);}
+  .row-arrow{color:var(--ink-faint); flex-shrink:0; transition:all 0.15s ease;}
+  .panel-upm .row-arrow{color:rgba(246,242,232,0.55);}
+  .row-arrow svg{width:13px;height:13px;}
+
+  /* ---------- Footer: account info + howto ---------- */
+  .footer-row{
+    flex-shrink:0;
+    display:flex;
+    gap:16px;
+  }
+  .creds-panel{
+    flex:2;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:12px 18px;
+    display:flex;
+    align-items:center;
+    gap:24px;
+    flex-wrap:wrap;
+    box-shadow:var(--shadow-sm);
+  }
+  .cred-item{display:flex; align-items:center; gap:9px;}
+  .cred-label{font-size:0.66rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-faint); font-weight:700;}
+  .cred-value{font-size:0.82rem; color:var(--ink); font-weight:600;}
+  .copy-btn{
+    background:transparent;
+    border:1px solid var(--line-strong);
+    color:var(--ink-soft);
+    font-family:var(--font-body);
+    font-size:0.68rem;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:100px;
+    cursor:pointer;
+    transition:all 0.15s ease;
+  }
+  .copy-btn:hover{background:var(--forest); color:#f6f2e8; border-color:var(--forest);}
+  .copy-btn.copied{background:var(--gold); color:#2a1d08; border-color:var(--gold);}
+
+  details.howto{
+    flex:1;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:12px 18px;
+    font-size:0.76rem;
+    color:var(--ink-soft);
+    box-shadow:var(--shadow-sm);
+  }
+  details.howto summary{
+    cursor:pointer;
+    font-weight:700;
+    color:var(--ink);
+    list-style:none;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  details.howto summary::-webkit-details-marker{display:none;}
+  details.howto summary::after{content:"+"; color:var(--forest); font-size:1.1rem; font-weight:700;}
+  details.howto[open] summary::after{content:"–";}
+  details.howto .howto-body{margin-top:9px; line-height:1.55;}
+  details.howto code{
+    background:var(--paper);
+    padding:1px 7px;
+    border-radius:5px;
+    font-family:'SF Mono', Consolas, monospace;
+    font-size:0.72rem;
+    color:var(--gold);
+    border:1px solid var(--line);
+  }
+  .password-note{margin-top:8px; line-height:1.55;}
+  .password-note strong{color:var(--ink);}
+
+  @media (max-width:1000px){
+    html, body{overflow:auto;}
+    .main-grid{grid-template-columns:repeat(2, 1fr); grid-template-rows:auto;}
+    .panel-upm{grid-column: span 2;}
+    .footer-row{flex-direction:column;}
+  }
+  @media (max-width:640px){
+    .main-grid{grid-template-columns:1fr;}
+    .panel-upm{grid-column: span 1;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     BRAMKA HASŁA
+============================================================ -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    </div>
+    <div class="lock-title">Portal pracownika UPM</div>
+    <div class="lock-desc">Wprowadź kod dostępu, aby kontynuować.</div>
+    <input type="password" id="lockInput" class="lock-input" maxlength="12" inputmode="numeric" placeholder="••••">
+    <button class="lock-btn" id="lockBtn">Wejdź</button>
+    <div class="lock-error" id="lockError">Nieprawidłowy kod. Spróbuj ponownie.</div>
+  </div>
+</div>
+
+<div class="wrap" id="mainWrap">
+
+  <div class="hero">
+    <div>
+      <div class="greeting" id="greetingText">Dzień dobry, <em>Serhii</em></div>
+      <div class="sub-line" id="subLine">Nr pracownika k430067 · Serhii.1.marchenko@upm.com</div>
+    </div>
+    <div>
+      <div class="clock-time" id="clockTime">--:--</div>
+      <div class="clock-date" id="clockDate">—</div>
+    </div>
+  </div>
+
+  <div class="quicksearch-wrap">
+    <div class="quicksearch-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="quickSearch" placeholder="Szukaj aplikacji, systemu, strony…" autocomplete="off">
+      <button class="clear-btn" id="clearSearch" hidden>✕</button>
+    </div>
+    <div class="search-results" id="searchResults" hidden></div>
+  </div>
+
+  <div class="main-grid" id="mainGrid">
+    <div class="panel panel-upm">
+      <div class="panel-title">Systemy UPM <span class="panel-count" id="countUpm"></span></div>
+      <div id="upmGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Microsoft 365 <span class="panel-count" id="countMs"></span></div>
+      <div id="msGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Narzędzia AI <span class="panel-count" id="countAi"></span></div>
+      <div id="aiGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">HR i wsparcie <span class="panel-count" id="countHr"></span></div>
+      <div id="hrGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Wyszukiwarka <span class="panel-count" id="countSearch"></span></div>
+      <div id="searchGrid"></div>
+    </div>
+  </div>
+
+  <div class="footer-row">
+    <div class="creds-panel">
+      <div class="cred-item">
+        <span class="cred-label">Imię i nazwisko</span>
+        <span class="cred-value">Serhii Marchenko</span>
+        <button class="copy-btn" data-copy="Serhii Marchenko">Kopiuj</button>
+      </div>
+      <div class="cred-item">
+        <span class="cred-label">Nr pracownika</span>
+        <span class="cred-value">k430067</span>
+        <button class="copy-btn" data-copy="k430067">Kopiuj</button>
+      </div>
+      <div class="cred-item">
+        <span class="cred-label">Email</span>
+        <span class="cred-value">Serhii.1.marchenko@upm.com</span>
+        <button class="copy-btn" data-copy="Serhii.1.marchenko@upm.com">Kopiuj</button>
+      </div>
+      <div class="cred-item">
+        <span class="cred-label">Hasło</span>
+        <span class="cred-value">O9o9tadim!#7QUPM</span>
+        <button class="copy-btn" data-copy="O9o9tadim!#7QUPM">Kopiuj</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>Jak dodać nową stronę? / hasła</summary>
+      <div class="howto-body">
+        Otwórz ten plik w edytorze tekstu, znajdź sekcję <code>DANE STRON</code> na końcu pliku i dodaj linię:<br>
+        <code>{ name: "Nazwa", url: "https://...", desc: "Opis", badge: "AB", color: "#1f6b4a" }</code> — zapisz i odśwież stronę.
+        <div class="password-note">🔒 <strong>Hasła celowo nie są tu przechowywane</strong> — ten plik to zwykły tekst. Użyj menedżera haseł (np. Bitwarden, darmowy) — to samo kopiowanie jednym kliknięciem, ale zaszyfrowane.</div>
+      </div>
+    </details>
+  </div>
+
+</div>
+
+<script>
+  const ACCESS_CODE = "3861";
+
+  // ============================================================
+  //  DANE STRON — edytuj te listy, aby dodać / zmienić strony
+  // ============================================================
+
+  const upmSites = [
+    { name: "Workday", url: "https://wd103.myworkday.com/upm/d/home.htmld",
+      desc: "Dane osobowe, paski wynagrodzeń, benefity.", badge: "WD", color: "#c7e6cf" },
+    { name: "Asistar", url: "https://eportal.asistar.eu/",
+      desc: "Wnioski o nieobecność.", badge: "AS", color: "#c7e6cf" },
+    { name: "MobileXpense", url: "https://xp1.mobilexpense.com",
+      desc: "Rozliczanie wydatków.", badge: "MX", color: "#c7e6cf" },
+    { name: "BioForum", url: "https://apps.powerapps.com/play/e/default-9eab37f0-91c6-47e3-9c00-fe8544bd272e/a/375b8dbe-0291-404b-a313-cf23a8880384?tenantId=9eab37f0-91c6-47e3-9c00-fe8544bd272e&source=portal&screenColor=rgba(105,180,69,1)&skipAppMetadata=true",
+      desc: "Zgłaszanie pomysłów.", badge: "BF", color: "#c7e6cf" }
+  ];
+
+  const msSites = [
+    { name: "Teams", url: "https://teams.microsoft.com/v2/",
+      desc: "Czat, połączenia, spotkania.", badge: "T", color: "#cddcf2" },
+    { name: "Outlook", url: "https://outlook.office.com/mail/?realm=upm.com&login_hint=serhii.1.marchenko@upm.com",
+      desc: "Poczta służbowa i kalendarz.", badge: "O", color: "#cddcf2" },
+    { name: "Word", url: "https://word.cloud.microsoft/en-us/",
+      desc: "Tworzenie i edycja dokumentów.", badge: "W", color: "#cddcf2" },
+    { name: "Excel", url: "https://excel.cloud.microsoft/en-us/?wdOrigin=POWERAPPSWEBPLAYER.SHELL",
+      desc: "Arkusze kalkulacyjne online.", badge: "X", color: "#cddcf2" },
+    { name: "OneDrive", url: "https://mysite.upm.com/?source=waffle",
+      desc: "Dysk w chmurze — pliki i dokumenty.", badge: "OD", color: "#cddcf2" }
+  ];
+
+  const aiTools = [
+    { name: "ChatGPT", url: "https://chat.openai.com/",
+      desc: "Asystent AI do pisania i researchu.", badge: "GPT", color: "#f0dcc0" },
+    { name: "Claude", url: "https://claude.ai/",
+      desc: "Asystent AI do pisania i researchu.", badge: "C", color: "#f0dcc0" }
+  ];
+
+  const hrSites = [
+    { name: "Griffin Forum", url: "https://teams.upm.com/sites/griffin-forum-employed-in-poland",
+      desc: "Intranet — benefity, formularze HR.", badge: "GF", color: "#e7d3a8" },
+    { name: "UPM Service Portal", url: "https://upmprod.service-now.com/myit/",
+      desc: "Zgłoszenia IT / HR.", badge: "SP", color: "#e7d3a8" }
+  ];
+
+  const searchSites = [
+    { name: "Google", url: "https://www.google.com",
+      desc: "Wyszukiwarka internetowa.", badge: "G", color: "#dfe6ee" }
+  ];
+
+  const categories = [
+    { id: 'upmGrid', countId: 'countUpm', label: 'Systemy UPM', sites: upmSites },
+    { id: 'msGrid', countId: 'countMs', label: 'Microsoft 365', sites: msSites },
+    { id: 'aiGrid', countId: 'countAi', label: 'Narzędzia AI', sites: aiTools },
+    { id: 'hrGrid', countId: 'countHr', label: 'HR i wsparcie', sites: hrSites },
+    { id: 'searchGrid', countId: 'countSearch', label: 'Wyszukiwarka', sites: searchSites }
+  ];
+
+  // ============================================================
+  //  RENDEROWANIE — nie trzeba edytować poniżej tej linii
+  // ============================================================
+
+  function normalizeUrl(url){ return /^https?:\/\//i.test(url) ? url : 'https://' + url; }
+
+  function rowHtml(site, showCategory){
+    const catTag = showCategory ? `<span class="result-cat">${site.category}</span>` : '';
+    return `
+      <a class="link-row" href="${normalizeUrl(site.url)}" target="_blank" rel="noopener" title="${site.desc}">
+        <div class="row-badge" style="background:${site.color}">${site.badge}</div>
+        <div class="row-text">
+          <div class="row-name">${site.name}</div>
+          <div class="row-desc">${site.desc}</div>
+        </div>
+        ${catTag}
+        <span class="row-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7v8"/></svg>
+        </span>
+      </a>
+    `;
+  }
+
+  categories.forEach(cat => {
+    document.getElementById(cat.id).innerHTML = cat.sites.map(s => rowHtml(s, false)).join('');
+    document.getElementById(cat.countId).textContent = cat.sites.length;
+  });
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const text = btn.dataset.copy;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.classList.add('copied');
+        btn.textContent = 'Skopiowano';
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = original; }, 1400);
+      });
+    });
+  });
+
+  // ---- Live clock + time-based greeting ----
+  function updateClock(){
+    const now = new Date();
+    const h = now.getHours();
+    let greetWord = "Dobry wieczór";
+    if(h < 12) greetWord = "Dzień dobry";
+    else if(h < 18) greetWord = "Miłego dnia";
+
+    document.getElementById('greetingText').innerHTML = `${greetWord}, <em>Serhii</em>`;
+    document.getElementById('clockTime').textContent =
+      now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('clockDate').textContent =
+      now.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  // ============================================================
+  //  SZYBKIE WYSZUKIWANIE (command search)
+  // ============================================================
+  const allSites = [];
+  categories.forEach(cat => cat.sites.forEach(s => allSites.push({ ...s, category: cat.label })));
+
+  const quickSearch = document.getElementById('quickSearch');
+  const clearSearch = document.getElementById('clearSearch');
+  const searchResults = document.getElementById('searchResults');
+  const mainGrid = document.getElementById('mainGrid');
+
+  function runSearch(){
+    const q = quickSearch.value.trim().toLowerCase();
+    clearSearch.hidden = q.length === 0;
+
+    if(q.length === 0){
+      searchResults.hidden = true;
+      mainGrid.style.display = '';
+      return;
+    }
+
+    const matches = allSites.filter(s =>
+      s.name.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q) || s.category.toLowerCase().includes(q)
+    );
+
+    searchResults.innerHTML = matches.length
+      ? matches.map(s => rowHtml(s, true)).join('')
+      : `<div class="search-empty">Brak wyników dla „${quickSearch.value}”.</div>`;
+
+    searchResults.hidden = false;
+    mainGrid.style.display = 'none';
+  }
+
+  quickSearch.addEventListener('input', runSearch);
+  clearSearch.addEventListener('click', () => {
+    quickSearch.value = '';
+    runSearch();
+    quickSearch.focus();
+  });
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('.quicksearch-wrap')){
+      if(quickSearch.value.trim().length === 0){ searchResults.hidden = true; }
+    }
+  });
+
+  // ============================================================
+  //  BRAMKA HASŁA
+  // ============================================================
+  const lockScreen = document.getElementById('lockScreen');
+  const lockInput = document.getElementById('lockInput');
+  const lockBtn = document.getElementById('lockBtn');
+  const lockError = document.getElementById('lockError');
+
+  function tryUnlock(){
+    if(lockInput.value.trim() === ACCESS_CODE){
+      sessionStorage.setItem("upmUnlocked", "1");
+      lockScreen.classList.add('hidden');
+      document.body.style.overflow = '';
+    } else {
+      lockError.classList.add('show');
+      lockInput.classList.add('shake');
+      lockInput.value = '';
+      setTimeout(() => lockInput.classList.remove('shake'), 350);
+    }
+  }
+  lockBtn.addEventListener('click', tryUnlock);
+  lockInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') tryUnlock(); });
+  lockInput.addEventListener('input', () => lockError.classList.remove('show'));
+
+  if(sessionStorage.getItem("upmUnlocked") === "1"){
+    lockScreen.classList.add('hidden');
+  } else {
+    setTimeout(() => lockInput.focus(), 350);
+  }
+</script>
+
+</body>
+</html>
